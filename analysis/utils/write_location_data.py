@@ -20,4 +20,4 @@ if __name__ == "__main__":
         path = "merge-all-days.csv"
 
     df = load()
-    df.to_csv(path)
+    df.to_csv(path, index=False)
