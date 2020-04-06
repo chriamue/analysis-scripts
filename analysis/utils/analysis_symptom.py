@@ -11,6 +11,16 @@ from analysis.utils.db import IndividualReportModel
 from analysis.utils import db_enum as enum
 
 
+COLUMNS = (
+    "healthy",
+    "sick_guess_no_corona",
+    "sick_guess_corona",
+    "sick_corona_confirmed",
+    "recovered_confirmed",
+    "recovered_not_confirmed",
+)
+
+
 def calculate(report):
     """Calculate symptom factor per report / row."""
     S = sum(
@@ -51,10 +61,7 @@ def map_calculate(collection_size: int):
             "temp_table",
             con,
             if_exists="replace",
-            dtype={
-                "document_id": sa.String(30),
-                "S": sa.Integer,
-            }
+            dtype={"document_id": sa.String(30), "S": sa.Integer,},
         )
         try:
             con.execute(query)
@@ -67,7 +74,7 @@ def map_calculate(collection_size: int):
 
     session.commit()
     spend_time = time.time() - start_time_analysis
-    print('Analysed {} samples in {} s'.format(collection_size, spend_time))
+    print("Analysed {} samples in {} s".format(collection_size, spend_time))
 
 
 def group_reports_by_location():
@@ -95,22 +102,22 @@ def group_reports_by_location():
 
     def group(df_diagnosis):
         """Get number of reports by location"""
-        return df_diagnosis.groupby('locator').sum()
+        return df_diagnosis.groupby("locator").sum()
 
     def to_sql(totals, column):
         query = """
             UPDATE locations AS old, temp_totals AS new
             SET old.{column} = new.analysis_done
             WHERE old.postal_code = new.locator
-        """.format(column=column)
+        """.format(
+            column=column
+        )
         with engine.begin() as con:
             totals.to_sql(
                 "temp_totals",
                 con,
                 if_exists="replace",
-                dtype={
-                    "locator": sa.Integer,
-                }
+                dtype={"locator": sa.Integer,},
             )
             try:
                 con.execute(query)
@@ -124,23 +131,45 @@ def group_reports_by_location():
     # total_healthy = group(healthy)
     # print(total_healthy)
     # to_sql(total_healthy, "total_healthy")
-    columns = (
-        "healthy",
-        "sick_guess_no_corona",
-        "sick_guess_corona",
-        "sick_corona_confirmed",
-        "recovered_confirmed",
-        "recovered_not_confirmed",
-    )
-    for diagnostic, column in enumerate(columns):
-        df_diagnosis = df.query('diagnostic == {}'.format(diagnostic))
+    for diagnostic, column in enumerate(COLUMNS):
+        df_diagnosis = df.query("diagnostic == {}".format(diagnostic))
         df_totals = group(df_diagnosis)
         to_sql(df_totals, "total_{}".format(column))
 
     session.commit()
     spend_time = time.time() - start_time_analysis
-    print('Grouped {} samples by location in {} s'.format(len(df), spend_time))
+    print("Grouped {} samples by location in {} s".format(len(df), spend_time))
+
+
+def fix_nan():
+    """Remove if all diagnostic columns are NaN and fill remaining nan with
+    zeros.
+
+    """
+    df = pd.read_sql(
+        "SELECT * FROM locations", con=engine, index_col="postal_code",
+    )
+    # Keep only the rows with at least 5 non-NA values.
+    nb_columns = len(COLUMNS)
+    df.dropna(thresh=nb_columns - 1, inplace=True)
+    df.fillna(0., inplace=True)
+    # Alternatively:
+    # df.dropna(
+    #    how="all",
+    #    subset=["total_" + column for column in COLUMNS],
+    #    inplace=True
+    # )
+    #  print(df)
+    with engine.begin() as con:
+        df.to_sql(
+            "locations",
+            con,
+            if_exists="replace",
+            dtype={"locator": sa.Integer},
+        )
+
 
 if __name__ == "__main__":
     map_calculate(10)
     group_reports_by_location()
+    fix_nan()
