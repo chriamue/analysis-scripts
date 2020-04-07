@@ -7,9 +7,19 @@ from analysis.utils import db_enum as enum
 
 
 base = declarative_base()
-db_string = "mysql+pymysql://" + DATABASE_USERNAME + ":" + DATABASE_PASSWORD + "@" + DATABASE_URL + ":" + MYSQL_PORT + '/' + DATABASE
-print("Connecting to db: %s" % db_string)
-engine = sa.create_engine(db_string)
+try:
+    db_string = "mysql+pymysql://" + DATABASE_USERNAME + ":" + DATABASE_PASSWORD + "@" + DATABASE_URL + ":" + MYSQL_PORT + '/' + DATABASE
+    print("Connecting to db: %s" % db_string)
+    engine = sa.create_engine(db_string)
+    with engine.connect() as con:
+        pass
+except sa.exc.OperationalError as e:
+    print(e)
+    db_string = "sqlite+pysqlcipher://" + ":"  + DATABASE_PASSWORD + "@/tmp/" + DATABASE + ".db"
+    print("Connecting to db: %s" % db_string)
+    engine = sa.create_engine(db_string)
+    #  with engine.connect() as con:
+    #      pass
 base.metadata.bind = engine
 session = orm.scoped_session(orm.sessionmaker())(bind=engine)
 
