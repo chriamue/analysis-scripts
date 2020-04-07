@@ -152,7 +152,12 @@ def fix_nan():
     # Keep only the rows with at least 5 non-NA values.
     nb_columns = len(COLUMNS)
     df.dropna(thresh=nb_columns - 1, inplace=True)
-    df.fillna(0., inplace=True)
+    df.fillna(0, inplace=True)
+    df = df.apply(
+        lambda col: pd.to_numeric(
+            col, downcast="integer", errors="ignore"
+        ),
+    )
     # Alternatively:
     # df.dropna(
     #    how="all",

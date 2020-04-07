@@ -86,6 +86,9 @@ def download_hours_frame(_from_hour: str, _to_hour: str, worker_frame_minute: in
     _from = int(datetime.strptime(_from_hour, DATE_HOUR_PARAM_FORMAT).timestamp())
     _to = int(datetime.strptime(_to_hour, DATE_HOUR_PARAM_FORMAT).timestamp())
 
+    existing_files = [
+        file.name for file in BACKUP_DOCUMENTS_PATH.glob('*/*.json')
+    ]
     now = datetime.now()  # current date and time
     now_str = now.strftime("%Y-%m-%d-%H-%M-%S")
     backup_dir = BACKUP_DOCUMENTS_PATH / ('download-time-' + now_str)
@@ -93,12 +96,16 @@ def download_hours_frame(_from_hour: str, _to_hour: str, worker_frame_minute: in
         backup_dir.mkdir()
 
     # iterate over hours
-    _previous = _from
-    _next = _previous + 60 * 60
-    while _next <= _to:
+    for _previous in range(_from, _to, 60 * 60):
+        _next = _previous + 60 * 60
         _prev_str = datetime.fromtimestamp(_previous).strftime(DATE_HOUR_PARAM_FORMAT)
         _next_str = datetime.fromtimestamp(_next).strftime(DATE_HOUR_PARAM_FORMAT)
-        print("Download from " + _prev_str + " to " + _next_str)
+        filename = ('data-' + _prev_str + '_' + _next_str + '.json')
+        if filename in existing_files:
+            print("Skipping", filename)
+            continue
+        else:
+            print("Download from", _prev_str, "to", _next_str)
 
         minutes = list()
 
@@ -123,7 +130,7 @@ def download_hours_frame(_from_hour: str, _to_hour: str, worker_frame_minute: in
 
         # save results to json file
         if len(hour_data) > 0:
-            file_path = backup_dir / ('data-' + _prev_str + '_' + _next_str + '.json')
+            file_path = backup_dir / filename
             with open(str(file_path), 'w') as outfile:
                 json.dump(hour_data, outfile)
 
@@ -145,7 +152,4 @@ def download_hours_frame(_from_hour: str, _to_hour: str, worker_frame_minute: in
                 except IntegrityError:
                     session.rollback()
                     print('Warn: Duplicate doc id: ' + report_json['id'])
-
-        _previous = _next
-        _next = _previous + (60 * 60)
 
