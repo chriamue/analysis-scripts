@@ -24,7 +24,7 @@ class IndividualReportModel(base):
     timestamp = sa.Column(sa.BigInteger, nullable=False)
     symptoms = sa.Column(sa.String(255))
     analysis_done = sa.Column(sa.Boolean,nullable=False)
-    # covidmap specific 
+    # covidmap specific
     # old questionnare - incomplete
     # *****************************
     # 1. Basic information
@@ -44,8 +44,8 @@ class IndividualReportModel(base):
     # 3. Symptoms
     # -----------
     # # chest pain
-    # sym_chest =  
-    
+    # sym_chest =
+
     # 1177 questions
     # **************
     # Key symptoms
@@ -84,7 +84,7 @@ class IndividualReportModel(base):
 
 class Comorbid(base):
     """Do you have any of the following ongoing illnesses? (multiple choice)
-    
+
     One-to-one mapping
     ref: https://docs.sqlalchemy.org/en/13/orm/basic_relationships.html#one-to-one
     """
@@ -96,7 +96,7 @@ class Comorbid(base):
     )
     parent = orm.relationship(
         "IndividualReportModel", back_populates="comorbid"
-    ) 
+    )
     hypertension = sa.Column(sa.Boolean)
     cardiovascular = sa.Column(sa.Boolean)
     pulmonary = sa.Column(sa.Boolean)
@@ -143,12 +143,12 @@ class LocationModel(base):
     latitude = sa.Column(sa.Float)
 
     # Computed
-    total_healthy = sa.Column(sa.Integer, default=0)
-    total_sick_guess_no_corona = sa.Column(sa.Integer, default=0)
-    total_sick_guess_corona = sa.Column(sa.Integer, default=0)
-    total_sick_corona_confirmed = sa.Column(sa.Integer, default=0)
-    total_recovered_confirmed = sa.Column(sa.Integer, default=0)
-    total_recovered_not_confirmed = sa.Column(sa.Integer, default=0)
+    total_healthy = sa.Column(sa.Integer)
+    total_sick_guess_no_corona = sa.Column(sa.Integer)
+    total_sick_guess_corona = sa.Column(sa.Integer)
+    total_sick_corona_confirmed = sa.Column(sa.Integer)
+    total_recovered_confirmed = sa.Column(sa.Integer)
+    total_recovered_not_confirmed = sa.Column(sa.Integer)
 
     def __repr__(self):
         return '<Location: ' + self.postal_code + '>'
@@ -159,7 +159,6 @@ class LocationModel(base):
             'date': date.today().isoformat(),
             'state': self.region_id.split("::")[0],
             'npa_plz' : self.postal_code,
-            'country_code' : self.country_code,
             'longitude' : self.longitude,
             'latitude' : self.latitude,
             'total_healthy' : self.total_healthy,

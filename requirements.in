@@ -1,0 +1,8 @@
+-e .
+python-dotenv
+SQLAlchemy
+pandas
+pymysql
+cryptography
+requests
+flask
