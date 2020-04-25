@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from analysis.utils.factory import IndividualReportFactory
 from analysis.utils.db import session, init_db
-from analysis.utils.db import LocationModel, IndividualReportModel
+from analysis.utils.db import LocationModel, IndividualReportModel, Token
 from analysis.utils.geo import download_geocoding_file, upload_geo_data
 from analysis.utils.analysis_symptom import (
     map_calculate,
@@ -19,6 +19,40 @@ import sys
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.route('/report', methods=['POST'])
+def report():
+    data = request.json
+    print(data)
+
+    # if token submitted
+        # if token valid
+            # insert report into database
+    # else
+        # generate new token
+        # insert report into database
+        # return token
+
+    if data['token']:
+        submitted_token = str(data['token'])
+        if len(submitted_token) == 16:
+            pass
+        else:
+            raise InvalidUsage("Invalid token")
+        
+        q = session.query(Token).filter_by(token=submitted_token).first()
+        if q:
+            print(q.token)
+        else:
+            raise InvalidUsage("Provided token doesn't exist")
+    elif data['report']:
+        
+        pass
+    else:
+        raise InvalidUsage("Required parameters are missing")
+        
+
 
 @app.route('/init', methods=['GET'])
 def init():

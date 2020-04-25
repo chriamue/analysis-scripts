@@ -32,11 +32,11 @@ def upload_geo_data():
                 continue  # skip header
 
             location = {
-                'country_code': row[0],
-                'postal_code': row[1],
-                'longitude': float(row[2]),
-                'latitude': float(row[3]),
-                'region_id': row[4],
+                'country_code': row[1],
+                'postal_code': row[2],
+                'longitude': float(row[3]),
+                'latitude': float(row[4]),
+                'region_id': row[5],
             }
 
             # remove duplicate by this...

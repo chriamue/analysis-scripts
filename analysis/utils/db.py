@@ -14,39 +14,28 @@ base.metadata.bind = engine
 session = orm.scoped_session(orm.sessionmaker())(bind=engine)
 
 
+class Token(base):
+    __tablename__ = 'token'
+
+    token = sa.Column(sa.String(16), primary_key=True)
+    timestamp = sa.Column(sa.DateTime())
+
+
 class IndividualReportModel(base):
     """JSON data is translated into SQL table columns."""
     __tablename__ = 'individual_report'
     document_id = sa.Column(sa.String(30), primary_key=True)
+
+    token_id = sa.Column(sa.String(16), sa.ForeignKey("token.token"))
+    token = orm.relationship("Token", foreign_keys=[token_id])
+
     diagnostic = sa.Column(sa.Integer,nullable=False)
     locator = sa.Column(sa.String(15),nullable=False)
     session_id = sa.Column(sa.String(50)) # ,nullable=False)
     timestamp = sa.Column(sa.BigInteger, nullable=False)
     symptoms = sa.Column(sa.String(255))
     analysis_done = sa.Column(sa.Boolean,nullable=False)
-    # covidmap specific
-    # old questionnare - incomplete
-    # *****************************
-    # 1. Basic information
-    # --------------------
-    # age = sa.Column(sa.Integer, nullable=False)
-    # gender = sa.Column(sa.Enum(Gender), nullable=False)
-    # pregnant = sa.Column(sa.Boolean)
-    # weight = sa.Column(sa.Integer, nullable=False)
-    # height = sa.Column(sa.Integer, nullable=False)
 
-    # 2. Epidemological information
-    # -----------------------------
-    # epi_travel = sa.Column(sa.Boolean, nullable=False)
-    # # contact with a confirmed
-    # epi_contact = sa.Column(sa.Boolean, nullable=False)
-
-    # 3. Symptoms
-    # -----------
-    # # chest pain
-    # sym_chest =
-
-    # 1177 questions
     # **************
     # Key symptoms
     # ------------
@@ -54,8 +43,7 @@ class IndividualReportModel(base):
     cough = sa.Column(sa.Enum(enum.Scale4), nullable=False)
     breathless = sa.Column(sa.Enum(enum.Scale4), nullable=False)
     energy = sa.Column(sa.Enum(enum.Energy), nullable=False)
-    # # If not currently sick (ie NO Q1-4) , provide assessment about risk of
-    # # becoming sick
+
     exposure = sa.Column(sa.Enum(enum.Exposure))
 
     has_comorbid = sa.Column(sa.Boolean)
@@ -143,6 +131,7 @@ class LocationModel(base):
     latitude = sa.Column(sa.Float)
 
     # Computed
+    date = sa.Column(sa.Date())
     total_healthy = sa.Column(sa.Integer)
     total_sick_guess_no_corona = sa.Column(sa.Integer)
     total_sick_guess_corona = sa.Column(sa.Integer)
@@ -156,7 +145,7 @@ class LocationModel(base):
     def serialize(self):
         """The response by the REST-API"""
         return {
-            'date': date.today().isoformat(),
+            'date': self.date,
             'state': self.region_id.split("::")[0],
             'npa_plz' : self.postal_code,
             'longitude' : self.longitude,
