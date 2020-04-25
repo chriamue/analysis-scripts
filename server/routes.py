@@ -13,8 +13,11 @@ from analysis.utils.analysis_symptom import (
 )
 from analysis.utils.analysis import count_report_to_analyse
 
+from analysis.utils.report import generate_token
+
 
 import sys
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -34,7 +37,7 @@ def report():
         # insert report into database
         # return token
 
-    if data['token']:
+    if 'token' in data.keys():
         submitted_token = str(data['token'])
         if len(submitted_token) == 16:
             pass
@@ -43,16 +46,20 @@ def report():
         
         q = session.query(Token).filter_by(token=submitted_token).first()
         if q:
-            print(q.token)
+            # insert report into database
+            pass
         else:
             raise InvalidUsage("Provided token doesn't exist")
-    elif data['report']:
+    elif 'report' in data.keys():
+        generated_token = generate_token()
+        data['token'] = generated_token
+        print(data)
         
+        # insert report into database
         pass
     else:
         raise InvalidUsage("Required parameters are missing")
         
-
 
 @app.route('/init', methods=['GET'])
 def init():
