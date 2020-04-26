@@ -13,7 +13,7 @@ from analysis.utils.analysis_symptom import (
 )
 from analysis.utils.analysis import count_report_to_analyse
 
-from analysis.utils.report import generate_token
+from analysis.utils.report import generate_token, ReportFactory, ComorbidFactory, TokenFactory
 
 
 import sys
@@ -46,20 +46,76 @@ def report():
         
         q = session.query(Token).filter_by(token=submitted_token).first()
         if q:
-            # insert report into database
-            pass
+            try:
+                report = ReportFactory.build(data)
+                try:
+                    session.add(report)
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500, "Could not insert into database")
+            except TypeError:
+                raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+            if report.has_comorbid:
+                data['report']['comorbid']['parent_id'] = report.document_id
+
+                try:    
+                    comorbid = ComorbidFactory.build(data['report']['comorbid'])
+                    try:
+                        session.add(comorbid)
+                        session.commit()
+                    except:
+                        session.rollback()
+                        abort(500, "Could not insert into database")
+                except TypeError:
+                    raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+            return make_response("", 201)
+
         else:
             raise InvalidUsage("Provided token doesn't exist")
     elif 'report' in data.keys():
         generated_token = generate_token()
         data['token'] = generated_token
-        print(data)
-        
-        # insert report into database
-        pass
+
+        token = TokenFactory.build(generated_token)
+        try:
+            session.add(token)
+            session.commit()
+        except:
+            session.rollback()
+            abort(500, "Could not insert a new token into database")
+
+        try:
+            report = ReportFactory.build(data)
+            try:
+                session.add(report)
+                session.commit()
+            except:
+                session.rollback()
+                abort(500, "Could not insert into database")
+        except TypeError:
+            raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+        if report.has_comorbid:
+            data['report']['comorbid']['parent_id'] = report.document_id
+
+            try:
+                comorbid = ComorbidFactory.build(data['report']['comorbid'])
+                try:
+                    session.add(comorbid)
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500, "Could not insert into database")
+            except TypeError:
+                raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+        return make_response(jsonify({"token": generated_token}), 201)
+
     else:
         raise InvalidUsage("Required parameters are missing")
-        
 
 @app.route('/init', methods=['GET'])
 def init():

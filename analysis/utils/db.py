@@ -18,23 +18,23 @@ class Token(base):
     __tablename__ = 'token'
 
     token = sa.Column(sa.String(16), primary_key=True)
-    timestamp = sa.Column(sa.DateTime())
+    timestamp = sa.Column(sa.BigInteger())
 
 
 class IndividualReportModel(base):
     """JSON data is translated into SQL table columns."""
     __tablename__ = 'individual_report'
-    document_id = sa.Column(sa.String(30), primary_key=True)
+    document_id = sa.Column(sa.Integer(), primary_key=True, autoincrement=True)
 
     token_id = sa.Column(sa.String(16), sa.ForeignKey("token.token"))
     token = orm.relationship("Token", foreign_keys=[token_id])
 
-    diagnostic = sa.Column(sa.Integer,nullable=False)
+    diagnostic = sa.Column(sa.Integer,nullable=True)
     locator = sa.Column(sa.String(15),nullable=False)
-    session_id = sa.Column(sa.String(50)) # ,nullable=False)
+    session_id = sa.Column(sa.String(50),nullable=True)
     timestamp = sa.Column(sa.BigInteger, nullable=False)
     symptoms = sa.Column(sa.String(255))
-    analysis_done = sa.Column(sa.Boolean,nullable=False)
+    analysis_done = sa.Column(sa.Boolean,nullable=False, default=False)
 
     # **************
     # Key symptoms
@@ -78,7 +78,7 @@ class Comorbid(base):
     """
     __tablename__ = "comorbidities"
     parent_id = sa.Column(
-        sa.String(30),
+        sa.Integer(),
         sa.ForeignKey('individual_report.document_id'),
         primary_key=True,
     )
@@ -160,5 +160,3 @@ class LocationModel(base):
 
 def init_db():
     base.metadata.create_all()
-
-
