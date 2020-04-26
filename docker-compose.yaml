@@ -6,10 +6,10 @@ services:
        - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: covidmap
-      MYSQL_DATABASE: covidmap
-      MYSQL_USER: covid
-      MYSQL_PASSWORD: map_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
   web:
     depends_on:
@@ -17,14 +17,14 @@ services:
     build: .
     restart: always
     ports:
-      - "8000:80"
+      - "${FLASK_RUN_PORT}:${FLASK_RUN_PORT}"
     environment:
-      DATABASE_URL: db
-      DATABASE_NAME: covidmap
-      DATABASE_USERNAME: covid
-      DATABASE_PASSWORD: map_password
-      MYSQL_PORT: 33060
-      FLASK_RUN_PORT: 8000
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_PORT: ${MYSQL_PORT}
+      FLASK_RUN_PORT: ${FLASK_RUN_PORT}
   
   # phpmyadmin:
   #   image: "phpmyadmin/phpmyadmin:latest"
