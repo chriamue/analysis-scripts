@@ -1,0 +1,205 @@
+{
+	"info": {
+		"_postman_id": "e691091e-0e50-42f7-a173-2419346dd728",
+		"name": "euvsvirus",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "init",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8008/init",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"init"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "locations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8008/locations",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"locations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "reports",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8008/reports",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"reports"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "analyse",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8008/analyse?size=10",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"analyse"
+					],
+					"query": [
+						{
+							"key": "size",
+							"value": "10"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "report",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"report\": {\n        \"postal_code\": \"10465\",\n        \"temp\": \"mid\",\n        \"cough\": \"often\",\n        \"breathless\": \"sometimes\",\n        \"energy\": \"tired\",\n        \"exposure\": \"yes\",\n        \"has_comorbid\": true,\n        \"comorbid\": {\n            \"hypertension\": true,\n            \"cardiovascular\": true,\n            \"pulmonary\": false,\n            \"cancer\": false,\n            \"diabetes\": false,\n            \"renal\": false,\n            \"neurological\": false,\n            \"respiratory\": false\n        },\n        \"compromised_immune\": false,\n        \"age\": \"low\"\n    }\n}"
+				},
+				"url": {
+					"raw": "localhost:8008/report",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"report"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "report_with_token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\": \"eYjMoGY\",\n    \"report\": {\n        \"postal_code\": \"10465\",\n        \"temp\": \"mid\",\n        \"cough\": \"often\",\n        \"breathless\": \"sometimes\",\n        \"energy\": \"tired\",\n        \"exposure\": \"yes\",\n        \"has_comorbid\": true,\n        \"comorbid\": {\n            \"hypertension\": true,\n            \"cardiovascular\": true,\n            \"pulmonary\": false,\n            \"cancer\": false,\n            \"diabetes\": false,\n            \"renal\": false,\n            \"neurological\": false,\n            \"respiratory\": false\n        },\n        \"compromised_immune\": false,\n        \"age\": \"low\"\n    }\n}"
+				},
+				"url": {
+					"raw": "localhost:8008/report",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"report"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post_trace",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"123456789012347\",\n\t\"outdoor\": true,\n\t\"activity\": \"walking\",\n\t\"public_transportation\": false\n}"
+				},
+				"url": {
+					"raw": "localhost:8008/trace",
+					"host": [
+						"localhost"
+					],
+					"port": "8008",
+					"path": [
+						"trace"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_trace",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	]
+}
