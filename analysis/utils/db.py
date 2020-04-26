@@ -69,6 +69,14 @@ class IndividualReportModel(base):
         }
 
 
+class TraceModel(base):
+    """JSON data is translated into SQL table columns."""
+    __tablename__ = 'individual_trace'
+    id = sa.Column(sa.String(15), primary_key=True)
+    outdoor = sa.Column(sa.Boolean,nullable=False, default=False)
+    public_transportation = sa.Column(sa.Boolean,nullable=False, default=False)
+    activity = sa.Column(sa.Enum(enum.Activity), nullable=False)
+
 
 class Comorbid(base):
     """Do you have any of the following ongoing illnesses? (multiple choice)

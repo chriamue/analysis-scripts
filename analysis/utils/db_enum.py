@@ -39,3 +39,12 @@ class Exposure(Enum):
     no = 0
     unsure = 1
     yes = 2
+
+class Activity(Enum):
+    """What did u do outside?
+    """
+    nothing = 0
+    walking = 1
+    running = 2
+    cycling = 3
+    driving = 4

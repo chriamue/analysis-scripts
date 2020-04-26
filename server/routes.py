@@ -4,8 +4,9 @@ from flask import jsonify, request, abort, make_response
 from sqlalchemy.exc import IntegrityError
 
 from analysis.utils.factory import IndividualReportFactory
+from analysis.utils.trace import TraceFactory
 from analysis.utils.db import session, init_db
-from analysis.utils.db import LocationModel, IndividualReportModel, Token
+from analysis.utils.db import LocationModel, IndividualReportModel, TraceModel, Token
 from analysis.utils.geo import download_geocoding_file, upload_geo_data
 from analysis.utils.analysis_symptom import (
     map_calculate,
@@ -195,6 +196,29 @@ def add_person():
         message = ("Could not create Individual Report. Probably malformed json. JSON:{%s}, %s", request.json)
         abort(400, message)
 
+
+@app.route('/trace', methods=['POST'])
+def post_trace():
+    id = request.json['id']
+    try:
+        trace = TraceFactory.build(request.json)
+        try:
+            session.add(trace)
+            session.commit()
+        except:
+            session.rollback()
+            abort(500,"Could not insert to database")
+    except TypeError:
+        raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+    except Exception as e:
+        message = ("Could not create Trace. Probably already exists. Probably malformed json. JSON:{%s}, %s", request.json, e)
+        abort(400, message)
+    return jsonify(id=id)
+
+
+@app.route('/trace/<string:id>', methods=['GET'])
+def get_trace(id):
+    return id
 
 def check_param(obj, param_list):
     for param in param_list:
