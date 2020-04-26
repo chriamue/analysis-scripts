@@ -39,7 +39,7 @@ def report():
 
     if 'token' in data.keys():
         submitted_token = str(data['token'])
-        if len(submitted_token) == 16:
+        if len(submitted_token) == 7:
             pass
         else:
             raise InvalidUsage("Invalid token")

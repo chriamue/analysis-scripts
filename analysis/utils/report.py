@@ -5,7 +5,7 @@ from .db import session, Token, IndividualReportModel, Comorbid
 from time import time
 
 
-def generate_token(length=16):
+def generate_token(length=7):
     allowed_characters = string.ascii_letters + string.digits
     token = ''.join(random.choice(allowed_characters) for i in range(length))
 

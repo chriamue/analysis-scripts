@@ -17,7 +17,7 @@ session = orm.scoped_session(orm.sessionmaker())(bind=engine)
 class Token(base):
     __tablename__ = 'token'
 
-    token = sa.Column(sa.String(16), primary_key=True)
+    token = sa.Column(sa.String(7), primary_key=True)
     timestamp = sa.Column(sa.BigInteger())
 
 
@@ -26,7 +26,7 @@ class IndividualReportModel(base):
     __tablename__ = 'individual_report'
     document_id = sa.Column(sa.Integer(), primary_key=True, autoincrement=True)
 
-    token_id = sa.Column(sa.String(16), sa.ForeignKey("token.token"))
+    token_id = sa.Column(sa.String(7), sa.ForeignKey("token.token"))
     token = orm.relationship("Token", foreign_keys=[token_id])
 
     diagnostic = sa.Column(sa.Integer,nullable=True)
