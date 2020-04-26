@@ -78,6 +78,18 @@ class TraceModel(base):
     activity = sa.Column(sa.Enum(enum.Activity), nullable=False)
 
 
+    def __repr__(self):
+        return '<Trace: ' + self.id + '>'
+
+    def serialize(self):
+        """The response by the REST-API"""
+        return {
+            'id': self.id,
+            'outdoor': str(self.outdoor),
+            'activity' : str(self.activity.name),
+            'public_transportation' : str(self.public_transportation)
+            }
+
 class Comorbid(base):
     """Do you have any of the following ongoing illnesses? (multiple choice)
 

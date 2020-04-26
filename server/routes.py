@@ -218,7 +218,8 @@ def post_trace():
 
 @app.route('/trace/<string:id>', methods=['GET'])
 def get_trace(id):
-    return id
+    q = session.query(TraceModel).filter_by(id=id).first()
+    return jsonify(q.serialize())
 
 def check_param(obj, param_list):
     for param in param_list:
