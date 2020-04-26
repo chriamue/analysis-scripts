@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from analysis.utils.factory import IndividualReportFactory
 from analysis.utils.db import session, init_db
-from analysis.utils.db import LocationModel, IndividualReportModel
+from analysis.utils.db import LocationModel, IndividualReportModel, Token
 from analysis.utils.geo import download_geocoding_file, upload_geo_data
 from analysis.utils.analysis_symptom import (
     map_calculate,
@@ -13,12 +13,109 @@ from analysis.utils.analysis_symptom import (
 )
 from analysis.utils.analysis import count_report_to_analyse
 
+from analysis.utils.report import generate_token, ReportFactory, ComorbidFactory, TokenFactory
+
 
 import sys
+
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.route('/report', methods=['POST'])
+def report():
+    data = request.json
+    print(data)
+
+    # if token submitted
+        # if token valid
+            # insert report into database
+    # else
+        # generate new token
+        # insert report into database
+        # return token
+
+    if 'token' in data.keys():
+        submitted_token = str(data['token'])
+        if len(submitted_token) == 7:
+            pass
+        else:
+            raise InvalidUsage("Invalid token")
+        
+        q = session.query(Token).filter_by(token=submitted_token).first()
+        if q:
+            try:
+                report = ReportFactory.build(data)
+                try:
+                    session.add(report)
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500, "Could not insert into database")
+            except TypeError:
+                raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+            if report.has_comorbid:
+                data['report']['comorbid']['parent_id'] = report.document_id
+
+                try:    
+                    comorbid = ComorbidFactory.build(data['report']['comorbid'])
+                    try:
+                        session.add(comorbid)
+                        session.commit()
+                    except:
+                        session.rollback()
+                        abort(500, "Could not insert into database")
+                except TypeError:
+                    raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+            return make_response("", 201)
+
+        else:
+            raise InvalidUsage("Provided token doesn't exist")
+    elif 'report' in data.keys():
+        generated_token = generate_token()
+        data['token'] = generated_token
+
+        token = TokenFactory.build(generated_token)
+        try:
+            session.add(token)
+            session.commit()
+        except:
+            session.rollback()
+            abort(500, "Could not insert a new token into database")
+
+        try:
+            report = ReportFactory.build(data)
+            try:
+                session.add(report)
+                session.commit()
+            except:
+                session.rollback()
+                abort(500, "Could not insert into database")
+        except TypeError:
+            raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+        if report.has_comorbid:
+            data['report']['comorbid']['parent_id'] = report.document_id
+
+            try:
+                comorbid = ComorbidFactory.build(data['report']['comorbid'])
+                try:
+                    session.add(comorbid)
+                    session.commit()
+                except:
+                    session.rollback()
+                    abort(500, "Could not insert into database")
+            except TypeError:
+                raise InvalidUsage("Some parameter was wrongly typed (string, int, array).")
+
+        return make_response(jsonify({"token": generated_token}), 201)
+
+    else:
+        raise InvalidUsage("Required parameters are missing")
 
 @app.route('/init', methods=['GET'])
 def init():
